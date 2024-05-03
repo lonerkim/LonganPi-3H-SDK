@@ -25,7 +25,7 @@ deb http://ports.ubuntu.com/ubuntu-ports/ jammy-security main restricted univers
         bmon e2fsprogs nvi tcpdump alsa-utils squashfs-tools evtest \
         bluez bluez-hcidump bluez-tools btscanner bluez-alsa-utils \
         device-tree-compiler ubuntu-keyring pulseaudio-module-bluetooth \
-        blueman network-manager network-manager-config-connectivity-ubuntu" > ./build/rootfs-ubuntu-cli.tar
+        blueman network-manager network-manager-config-connectivity-ubuntu" > ./build/rootfs_ubuntu_cli.tar
 }
 
 # if you want skip Ubuntu rootfs build, please comment this line:
