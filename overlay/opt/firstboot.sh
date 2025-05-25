@@ -42,7 +42,7 @@ dpkg-reconfigure openssh-server
 systemctl enable rc-local
 
 # change the timezone
-timedatectl set-timezone Asia/Shanghai
+timedatectl set-timezone Asia/Seoul
 
 # get time from network
 systemctl enable systemd-timesyncd
