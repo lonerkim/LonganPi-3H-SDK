@@ -9,7 +9,7 @@ if [ -z "$MIRROR" ]; then
 fi
 
 if [ -z "$CODENAME" ]; then
-    CODENAME=focal
+    CODENAME=noble
 fi
 
 if [ -z "$USER_PACKAGE" ]; then
@@ -69,6 +69,7 @@ genrootfs() {
 deb ${MIRROR}/ubuntu/ ${CODENAME} main universe restricted multiverse
 deb ${MIRROR}/ubuntu/ ${CODENAME}-updates main universe restricted multiverse
 " | $MMDEBSTRAP --aptopt='Dir::Etc::Trusted "/usr/share/keyrings/ubuntu-archive-keyring.gpg"' --architectures=arm64 -v -d \
+    # Ensure we're using ARM architecture for our build
         --customize-hook='chroot "$1" useradd --home-dir /home/sipeed --create-home sipeed --shell /bin/bash' \
         --customize-hook='echo sipeed:licheepi | chroot "$1" chpasswd' \
         --customize-hook='chroot "$1" usermod -a -G dialout sipeed' \
@@ -92,8 +93,8 @@ deb ${MIRROR}/ubuntu/ ${CODENAME}-updates main universe restricted multiverse
         --customize-hook='cp overlay/etc/systemd/system/prekvm.service "$1/etc/systemd/system/"' \
         --customize-hook='chroot "$1" systemctl enable prekvm' \
         --customize-hook='chroot "$1" mkdir -p --mode=0755 /usr/share/keyrings' \
-        --customize-hook='chroot "$1" sh -c "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/focal.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null"' \
-        --customize-hook='chroot "$1" sh -c "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/focal.tailscale.list | sudo tee /etc/apt/sources.list.d/tailscale.list"' \
+        --customize-hook='chroot "$1" sh -c "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/noble.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null"' \
+        --customize-hook='chroot "$1" sh -c "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/noble.tailscale.list | sudo tee /etc/apt/sources.list.d/tailscale.list"' \
         --customize-hook='chroot "$1" apt update' \
         --customize-hook='chroot "$1" sh -c "apt install -y tailscale=1.80.3"' \
         --include="${BASE_PACKAGE} ${DESKTOP_PACKAGE} ${KVM_PACKAGE} ${USER_PACKAGE}" >./build/rootfs.tar
