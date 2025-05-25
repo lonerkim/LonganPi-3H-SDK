@@ -5,12 +5,11 @@ if [ -z "$MMDEBSTRAP" ]; then
 fi
 
 if [ -z "$MIRROR" ]; then
-    MIRROR="http://ftp.debian.org"
-    # MIRROR="http://mirrors.aliyun.com"
+    MIRROR="http://archive.ubuntu.com"
 fi
 
 if [ -z "$CODENAME" ]; then
-    CODENAME=stable
+    CODENAME=focal
 fi
 
 if [ -z "$USER_PACKAGE" ]; then
@@ -25,12 +24,12 @@ BASE_PACKAGE="ca-certificates locales dosfstools binutils file \
     bmon e2fsprogs nvi tcpdump alsa-utils squashfs-tools evtest \
     pssh tcl-expect tcl atftp udpcast u-boot-menu initramfs-tools \
     bluez bluez-hcidump bluez-tools btscanner bluez-alsa-utils \
-    device-tree-compiler debian-archive-keyring linux-cpupower \
+    device-tree-compiler ubuntu-keyring linux-cpupower \
     network-manager exfatprogs cloud-guest-utils xfsprogs rsync neovim \
     xz-utils curl"
 
 if [ -z "$DESKTOP_PACKAGE" ]; then
-    DESKTOP_PACKAGE="chromium task-xfce-desktop \
+    DESKTOP_PACKAGE="chromium xfce4 xfce4-goodies \
     xfce4-terminal xfce4-screenshooter pulseaudio-module-bluetooth \
     blueman fonts-noto-core fonts-noto-cjk fonts-noto-mono \
     fonts-noto-ui-core tango-icon-theme"
@@ -67,9 +66,9 @@ set -eux
 
 genrootfs() {
     echo "
-deb ${MIRROR}/debian/ ${CODENAME} main contrib non-free non-free-firmware
-deb ${MIRROR}/debian/ ${CODENAME}-updates main contrib non-free non-free-firmware
-" | $MMDEBSTRAP --aptopt='Dir::Etc::Trusted "/usr/share/keyrings/debian-archive-keyring.gpg"' --architectures=arm64 -v -d \
+deb ${MIRROR}/ubuntu/ ${CODENAME} main universe restricted multiverse
+deb ${MIRROR}/ubuntu/ ${CODENAME}-updates main universe restricted multiverse
+" | $MMDEBSTRAP --aptopt='Dir::Etc::Trusted "/usr/share/keyrings/ubuntu-archive-keyring.gpg"' --architectures=arm64 -v -d \
         --customize-hook='chroot "$1" useradd --home-dir /home/sipeed --create-home sipeed --shell /bin/bash' \
         --customize-hook='echo sipeed:licheepi | chroot "$1" chpasswd' \
         --customize-hook='chroot "$1" usermod -a -G dialout sipeed' \
@@ -93,8 +92,8 @@ deb ${MIRROR}/debian/ ${CODENAME}-updates main contrib non-free non-free-firmwar
         --customize-hook='cp overlay/etc/systemd/system/prekvm.service "$1/etc/systemd/system/"' \
         --customize-hook='chroot "$1" systemctl enable prekvm' \
         --customize-hook='chroot "$1" mkdir -p --mode=0755 /usr/share/keyrings' \
-        --customize-hook='chroot "$1" sh -c "curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null"' \
-        --customize-hook='chroot "$1" sh -c "curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list"' \
+        --customize-hook='chroot "$1" sh -c "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/focal.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null"' \
+        --customize-hook='chroot "$1" sh -c "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/focal.tailscale.list | sudo tee /etc/apt/sources.list.d/tailscale.list"' \
         --customize-hook='chroot "$1" apt update' \
         --customize-hook='chroot "$1" sh -c "apt install -y tailscale=1.80.3"' \
         --include="${BASE_PACKAGE} ${DESKTOP_PACKAGE} ${KVM_PACKAGE} ${USER_PACKAGE}" >./build/rootfs.tar
